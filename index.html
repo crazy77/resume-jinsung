@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> 김진성 | 물류 전문가 포트폴리오</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+    :root {
+      --primary-color: #4A90E2;
+      --secondary-color: #50E3C2;
+      --accent-color: #BD10E0;
+      --text-light: #2c3e50;
+      --text-dark: #ecf0f1;
+      --bg-light-start: #F5F7FA;
+      --bg-light-end: #D9E2EC;
+      --bg-dark-start: #283048;
+      --bg-dark-end: #1C2538;
+      --glass-bg-light: rgba(255, 255, 255, 0.65);
+      --glass-bg-dark: rgba(40, 48, 72, 0.65);
+      --glass-blur: blur(20px);
+      --card-shadow-light: 0 12px 45px 0 rgba(74, 144, 226, 0.2);
+      --card-shadow-dark: 0 12px 45px 0 rgba(0, 0, 0, 0.25);
+      --border-light: rgba(74, 144, 226, 0.3);
+      --border-dark: rgba(80, 227, 194, 0.3);
+      --tag-bg-light: rgba(74, 144, 226, 0.1);
+      --tag-text-light: var(--primary-color);
+      --tag-bg-dark: rgba(80, 227, 194, 0.15);
+      --tag-text-dark: var(--secondary-color);
+    }
+
+    body {
+      font-family: 'Poppins', 'Noto Sans KR', sans-serif;
+      transition: background 0.5s ease-out, color 0.3s;
+      overflow-x: hidden;
+    }
+
+    body.light {
+      background: linear-gradient(135deg, var(--bg-light-start) 0%, var(--bg-light-end) 100%);
+      color: var(--text-light);
+    }
+
+    body.dark {
+      background: linear-gradient(135deg, var(--bg-dark-start) 0%, var(--bg-dark-end) 100%);
+      color: var(--text-dark);
+    }
+
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      background: inherit;
+      background-size: 200% 200%;
+      animation: gradientBG 30s ease infinite;
+    }
+
+    .glass-card {
+      background: var(--glass-bg-light);
+      box-shadow: var(--card-shadow-light);
+      border-radius: 1.75rem;
+      border: 1.5px solid var(--border-light);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        box-shadow 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        background 0.3s, border-color 0.3s;
+      opacity: 0;
+      transform: perspective(1000px) translateY(50px) rotateX(-5deg) scale(0.95);
+      will-change: opacity, transform, box-shadow;
+      overflow: hidden;
+    }
+
+    .dark .glass-card {
+      background: var(--glass-bg-dark);
+      box-shadow: var(--card-shadow-dark);
+      border-color: var(--border-dark);
+    }
+
+    .glass-card.visible {
+      opacity: 1;
+      transform: perspective(1000px) translateY(0) rotateX(0deg) scale(1);
+      transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+        transform 0.8s cubic-bezier(0.23, 1, 0.32, 1) 0.1s;
+    }
+
+    .glass-card:hover {
+      transform: perspective(1000px) translateY(-10px) rotateX(2deg) scale(1.03);
+      box-shadow: 0 20px 60px 0 rgba(74, 144, 226, 0.25);
+    }
+
+    .dark .glass-card:hover {
+      box-shadow: 0 20px 60px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .glass-btn {
+      border-radius: 9999px;
+      background: var(--glass-bg-light);
+      box-shadow: 0 4px 12px 0 rgba(74, 144, 226, 0.15);
+      border: 1.5px solid var(--border-light);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      font-weight: 600;
+      padding: 0.5rem 1.25rem;
+      transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, background 0.2s, border-color 0.2s;
+    }
+
+    .glass-btn:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 16px 0 rgba(74, 144, 226, 0.2);
+    }
+
+    .glass-btn:active {
+      transform: translateY(0px) scale(1);
+      box-shadow: 0 2px 8px 0 rgba(74, 144, 226, 0.15);
+    }
+
+    .dark .glass-btn {
+      background: var(--glass-bg-dark);
+      border-color: var(--border-dark);
+      box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .dark .glass-btn:hover {
+      box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .dark .glass-btn:active {
+      box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .profile-glass {
+      width: 10rem;
+      height: 10rem;
+      box-shadow: 0 8px 32px 0 rgba(74, 144, 226, 0.2);
+      background: var(--glass-bg-light);
+      border-radius: 50%;
+      border: 3px solid var(--border-light);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      transition: box-shadow 0.3s, background 0.3s, transform 0.3s ease-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dark .profile-glass {
+      background: var(--glass-bg-dark);
+      border-color: var(--border-dark);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .profile-glass i {
+      font-size: 5rem;
+      color: var(--primary-color);
+      transition: color 0.3s;
+    }
+
+    .dark .profile-glass i {
+      color: var(--secondary-color);
+    }
+
+    .profile-glass:hover {
+      transform: scale(1.05) rotate(5deg);
+      box-shadow: 0 12px 40px 0 rgba(74, 144, 226, 0.25);
+    }
+
+    .dark .profile-glass:hover {
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    .timeline-container {
+      border-left: 3px solid;
+      border-image: linear-gradient(to bottom, var(--primary-color), var(--secondary-color)) 1;
+      padding-left: 2rem;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-bottom: 2.5rem;
+    }
+
+    .timeline-item:last-child {
+      padding-bottom: 0;
+    }
+
+    .timeline-dot {
+      position: absolute;
+      left: -2.8rem;
+      top: 0.1rem;
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 50%;
+      background: var(--bg-light-start);
+      border: 3px solid var(--primary-color);
+      box-shadow: 0 0 0 4px var(--bg-light-start), 0 3px 10px rgba(74, 144, 226, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+    }
+
+    .dark .timeline-dot {
+      background: var(--bg-dark-start);
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 4px var(--bg-dark-start), 0 3px 10px rgba(80, 227, 194, 0.3);
+    }
+
+    .timeline-item:hover .timeline-dot {
+      transform: scale(1.2);
+      box-shadow: 0 0 0 6px var(--bg-light-start), 0 5px 15px rgba(74, 144, 226, 0.5);
+    }
+
+    .dark .timeline-item:hover .timeline-dot {
+      box-shadow: 0 0 0 6px var(--bg-dark-start), 0 5px 15px rgba(80, 227, 194, 0.5);
+    }
+
+    .timeline-dot i {
+      color: var(--primary-color);
+      font-size: 0.8rem;
+    }
+
+    .dark .timeline-dot i {
+      color: var(--secondary-color);
+    }
+
+    .timeline-content h3 {
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 0.25rem;
+      color: var(--primary-color);
+      transition: color 0.3s;
+    }
+
+    .dark .timeline-content h3 {
+      color: var(--secondary-color);
+    }
+
+    .timeline-content .date-period {
+      font-size: 0.8rem;
+      color: #7f8c8d;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .dark .timeline-content .date-period {
+      color: #bdc3c7;
+    }
+
+    .timeline-content .position-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 2rem;
+      letter-spacing: -0.02em;
+      position: relative;
+      display: inline-block;
+      padding-bottom: 0.5rem;
+      color: var(--primary-color);
+    }
+
+    .dark .section-title {
+      color: var(--secondary-color);
+    }
+
+    .section-title::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 60%;
+      height: 4px;
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      border-radius: 2px;
+    }
+
+    .dark .section-title::after {
+      background: linear-gradient(to right, var(--secondary-color), var(--accent-color));
+    }
+
+    .content-tag {
+      display: inline-flex;
+      align-items: center;
+      background-color: var(--tag-bg-light);
+      color: var(--tag-text-light);
+      padding: 0.5rem 1rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      box-shadow: 0 2px 8px rgba(74, 144, 226, 0.1);
+      transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+    }
+
+    .dark .content-tag {
+      background-color: var(--tag-bg-dark);
+      color: var(--tag-text-dark);
+      box-shadow: 0 2px 8px rgba(80, 227, 194, 0.15);
+    }
+
+    .content-tag i {
+      margin-right: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .content-tag:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+    }
+
+    .dark .content-tag:hover {
+      box-shadow: 0 4px 12px rgba(80, 227, 194, 0.2);
+    }
+
+    .content-tag+ul {
+      margin-top: 0.5rem;
+    }
+
+    .content-tag+ul>li {
+      margin-bottom: 0.5rem;
+      line-height: 1.6;
+    }
+
+    .skill-item {
+      margin-bottom: 1.5rem;
+    }
+
+    .skill-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.35rem;
+      font-weight: 600;
+    }
+
+    .skill-bar {
+      height: 12px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark .skill-bar {
+      background: rgba(0, 0, 0, 0.2);
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .skill-progress {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      border-radius: 6px;
+      transition: width 1s cubic-bezier(0.23, 1, 0.32, 1);
+      box-shadow: 0 0 10px var(--primary-color), 0 0 5px var(--secondary-color);
+    }
+
+    .dark .skill-progress {
+      box-shadow: 0 0 10px var(--secondary-color), 0 0 5px var(--accent-color);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+    }
+
+    h2.hero-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    p.hero-subtitle {
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+
+    .dark p.hero-subtitle {
+      color: #bbb;
+    }
+
+    .contact-info p {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .contact-info p i {
+      margin-right: 0.75rem;
+      color: var(--primary-color);
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .dark .contact-info p i {
+      color: var(--secondary-color);
+    }
+
+    .fade-in-section {
+      opacity: 0;
+      transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+      will-change: opacity;
+    }
+
+    .fade-in-section.visible {
+      opacity: 1;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    @media print {
+      .no-print {
+        display: none;
+      }
+
+      body,
+      body::before {
+        background: white !important;
+        color: black !important;
+        animation: none !important;
+      }
+
+      .glass-card {
+        background-color: white !important;
+        border-color: #ccc !important;
+        box-shadow: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+
+      .section-title::after {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body class="light">
+  <div class="container mx-auto px-4 py-12 max-w-5xl">
+    <header class="flex justify-between items-center mb-12 fade-in-section">
+      <h1 class="ko drop-shadow-md">김진성</h1>
+      <h1 class="en hidden drop-shadow-md">Jinseong Kim</h1>
+      <div class="flex space-x-3 no-print">
+        <button id="lang-toggle" class="glass-btn text-sm">
+          <span class="ko">EN</span>
+          <span class="en hidden">KO</span>
+        </button>
+        <button id="mode-toggle" class="glass-btn text-sm">
+          <i class="fas fa-moon dark:hidden"></i>
+          <i class="fas fa-sun hidden dark:block"></i>
+          <span class="sr-only">테마 전환</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="glass-card p-6 sm:p-8 md:p-10 mb-12" id="hero-section">
+      <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
+        <div class="profile-glass mb-6 md:mb-0 w-24 h-24 rounded-full">
+          <img src="./public/photo.jpeg" alt="김진성 사진" class="w-full h-full object-contain rounded-full">
+        </div>
+        <div class="flex-1 text-center md:text-left">
+          <h2 class="hero-title ko">물류 전문가</h2>
+          <h2 class="hero-title en hidden">Logistics Professional</h2>
+          <p class="hero-subtitle ko">16년 항공 물류의 흐름을 읽다, 혁신으로 미래를 잇다.</p>
+          <p class="hero-subtitle en hidden">16 Years Reading the Tides of Air Logistics, Bridging the Future with
+            Innovation.</p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 contact-info mt-6">
+            <div>
+              <p><i class="fas fa-phone-alt"></i> 010-4872-1764</p>
+              <p><i class="fas fa-envelope"></i> neopt@naver.com</p>
+            </div>
+            <div>
+              <p><i class="fas fa-map-marker-alt"></i>
+                <span class="ko">인천광역시 중구 운서동</span>
+                <span class="en hidden">Unseo-dong, Jung-gu, Incheon</span>
+              </p>
+              <p><i class="fas fa-id-badge"></i>
+                <span class="ko">지게차 운전 자격증 보유</span>
+                <span class="en hidden">Forklift Certified</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card p-6 sm:p-8 md:p-10 mb-12" id="summary-section">
+      <h2 class="section-title ko">저를 소개합니다</h2>
+      <h2 class="section-title en hidden">About Me</h2>
+
+      <div class="space-y-6 text-base md:text-lg leading-relaxed">
+        <p class="ko">
+          <strong class="text-primary-color dark:text-secondary-color">16년 9개월</strong>, 항공 화물 포워딩이라는 역동적인 무대에서 숨 가쁘게
+          달려온 시간입니다. 단순한 경력을 넘어, 이 시간 동안 저는 팀을 성공적으로 이끌고, 복잡한 운영 시스템을 최적화하며, 눈에 보이는 성과를 만들어내는 <strong
+            class="text-primary-color dark:text-secondary-color">문제 해결사이자 성과 창출가</strong>로 성장했습니다.
+        </p>
+        <p class="en hidden">
+          For <strong class="text-primary-color dark:text-secondary-color">16 years and 9 months</strong>, I have
+          navigated the dynamic stage of airfreight forwarding. This journey has been more than just accumulating
+          experience; it has shaped me into a <strong
+            class="text-primary-color dark:text-secondary-color">problem-solver and a result-driver</strong>,
+          successfully leading teams, optimizing complex operational systems, and delivering tangible achievements.
+        </p>
+
+        <p class="ko">
+          저에게 물류는 단순한 상품의 이동이 아닌, <strong class="text-primary-color dark:text-secondary-color">효율성과 혁신을 통해 가치를 창조하는
+            과정</strong>입니다. 끊임없이 변화하는 현장에서 발생하는 다양한 변수들을 예측하고 선제적으로 대응하며, 데이터에 기반한 분석으로 비효율을 개선하고 새로운 가능성을 모색하는 데에서 큰
+          보람을 느낍니다. 특히, 제가 제안하고 도입했던 맞춤형 운영 시스템은 팀의 업무 효율을 극대화하고 가시적인 비용 절감 효과를 가져왔으며, 이는 3년 연속 "최우수 직원"으로 선정되는 영광으로
+          이어졌습니다.
+        </p>
+        <p class="en hidden">
+          To me, logistics is not merely the movement of goods but a process of <strong
+            class="text-primary-color dark:text-secondary-color">creating value through efficiency and
+            innovation</strong>. I find great satisfaction in anticipating and proactively responding to the myriad
+          variables in this ever-evolving field, improving inefficiencies through data-driven analysis, and exploring
+          new possibilities. Notably, a custom operational system I proposed and implemented significantly maximized
+          team efficiency and led to tangible cost savings, earning me the honor of "Top Employee" for three consecutive
+          years.
+        </p>
+
+        <p class="ko">
+          저의 검증된 리더십과 문제 해결 능력, 그리고 항공 물류 산업에 대한 깊은 이해는 귀사의 성장에 핵심적인 동력이 될 수 있다고 확신합니다. 저는 단순히 주어진 업무를 수행하는 것을 넘어,
+          <strong class="text-primary-color dark:text-secondary-color">회사의 비전을 공유하고 함께 더 큰 미래를 그려나갈 수 있는 진정한
+            파트너</strong>가 되기를 열망합니다. 새로운 환경에서의 도전과 기회를 통해 저의 모든 잠재력을 발휘하여 귀사의 성공 스토리에 의미 있는 한 페이지를 장식하고 싶습니다.
+        </p>
+        <p class="en hidden">
+          I am confident that my proven leadership, problem-solving capabilities, and deep understanding of the air
+          logistics industry can be a key driver for your company's growth. I aspire to be more than just an employee
+          who performs assigned tasks; I aim to be <strong class="text-primary-color dark:text-secondary-color">a true
+            partner who shares the company's vision and collaboratively paints a grander future</strong>. I am eager to
+          unleash my full potential through new challenges and opportunities, aspiring to add a meaningful chapter to
+          your company's success story.
+        </p>
+      </div>
+    </section>
+
+    <section class="glass-card p-6 sm:p-8 md:p-10 mb-12" id="skills-section">
+      <h2 class="section-title ko">기술 및 역량</h2>
+      <h2 class="section-title en hidden">Skills & Competencies</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 pt-4">
+
+        <div>
+          <h4 class="skill-category-title ko"><i class="fas fa-cogs mr-2"></i>핵심 업무 역량</h4>
+          <h4 class="skill-category-title en hidden"><i class="fas fa-cogs mr-2"></i>Core Competencies</h4>
+          <ul class="mt-3 space-y-2 text-sm md:text-base">
+            <li class="flex items-center"><i
+                class="fas fa-check-circle text-secondary-color dark:text-primary-color mr-2"></i><span class="ko">항공 화물
+                포워딩 전문성</span><span class="en hidden">Airfreight Forwarding Expertise</span></li>
+            <li class="flex items-center"><i
+                class="fas fa-check-circle text-secondary-color dark:text-primary-color mr-2"></i><span class="ko">수출입
+                프로세스 관리</span><span class="en hidden">Export/Import Process Management</span></li>
+            <li class="flex items-center"><i
+                class="fas fa-check-circle text-secondary-color dark:text-primary-color mr-2"></i><span class="ko">운영
+                최적화 및 효율성 개선</span><span class="en hidden">Operations Optimization & Efficiency</span></li>
+            <li class="flex items-center"><i
+                class="fas fa-check-circle text-secondary-color dark:text-primary-color mr-2"></i><span class="ko">MS
+                Office Suite 활용 (Excel, Word)</span><span class="en hidden">MS Office Suite Proficiency (Excel,
+                Word)</span></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="skill-category-title ko"><i class="fas fa-lightbulb mr-2"></i>문제해결 및 기획력</h4>
+          <h4 class="skill-category-title en hidden"><i class="fas fa-lightbulb mr-2"></i>Problem Solving & Planning
+          </h4>
+          <ul class="mt-3 space-y-2 text-sm md:text-base">
+            <li class="flex items-center"><i
+                class="fas fa-check-circle text-secondary-color dark:text-primary-color mr-2"></i><span class="ko">전략적
+                계획 수립</span><span class="en hidden">Strategic Planning</span></li>
+            <li class="flex items-center"><i
+                class="fas fa-check-circle text-secondary-color dark:text-primary-color mr-2"></i><span class="ko">데이터
+                기반 문제 분석 및 해결</span><span class="en hidden">Data-driven Problem Analysis & Resolution</span></li>
+            <li class="flex items-center"><i
+                class="fas fa-check-circle text-secondary-color dark:text-primary-color mr-2"></i><span class="ko">위기 관리
+                및 선제적 대응</span><span class="en hidden">Risk Management & Proactive Response</span></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="skill-category-title ko"><i class="fas fa-users mr-2"></i>소프트 스킬 및 기타</h4>
+          <h4 class="skill-category-title en hidden"><i class="fas fa-users mr-2"></i>Soft Skills & Others</h4>
+          <ul class="mt-3 space-y-2 text-sm md:text-base">
+            <li class="flex items-center"><i
+                class="fas fa-check-circle text-secondary-color dark:text-primary-color mr-2"></i><span
+                class="ko">커뮤니케이션 및 대인관계</span><span class="en hidden">Communication & Interpersonal Skills</span></li>
+            <li class="flex items-center"><i
+                class="fas fa-check-circle text-secondary-color dark:text-primary-color mr-2"></i><span class="ko">효율적인
+                시간 관리</span><span class="en hidden">Effective Time Management</span></li>
+            <li class="flex items-center"><i
+                class="fas fa-check-circle text-secondary-color dark:text-primary-color mr-2"></i><span class="ko">팀 리더십
+                및 협업</span><span class="en hidden">Team Leadership & Collaboration</span></li>
+            <li class="flex items-center"><i
+                class="fas fa-id-card-alt mr-2 text-secondary-color dark:text-primary-color"></i><span class="ko">운전면허
+                (1종 보통)</span><span class="en hidden">Driver's License (Type 1)</span></li>
+            <li class="flex items-center"><i
+                class="fas fa-hard-hat mr-2 text-secondary-color dark:text-primary-color"></i><span class="ko">지게차 운전
+                기능사</span><span class="en hidden">Certified Forklift Operator</span></li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="glass-card p-6 sm:p-8 md:p-10 mb-12" id="experience-section">
+      <h2 class="section-title ko">경력 여정</h2>
+      <h2 class="section-title en hidden">Career Journey</h2>
+      <div class="timeline-container relative mt-8">
+
+        <div class="timeline-item">
+          <div class="timeline-dot"><i class="fas fa-rocket"></i></div>
+          <div class="timeline-content">
+            <h3 class="ko">KGL 주식회사</h3>
+            <h3 class="en hidden">KGL Co., Ltd.</h3>
+            <p class="date-period ko">2017년 2월 - 2024년 2월 (7년 1개월)</p>
+            <p class="date-period en hidden">Feb 2017 - Feb 2024 (7 years 1 month)</p>
+            <p class="position-title ko">부장 / 수출 사무실 팀장, 인천공항 지점</p>
+            <p class="position-title en hidden">Deputy General Manager / Export Office Team Leader, Incheon Airport
+              Branch</p>
+
+            <div class="content-tag ko"><i class="fas fa-tasks"></i>주요 업무</div>
+            <div class="content-tag en hidden"><i class="fas fa-tasks"></i>Key Responsibilities</div>
+            <ul class="list-disc mt-3 ml-5 space-y-1 text-sm md:text-base">
+              <li class="ko">수출 사무실 팀 전반 관리 및 운영, 워크플로우 최적화 감독</li>
+              <li class="en hidden">Managed all aspects of the Export Office team, overseeing operations and workflow
+                optimization.</li>
+              <li class="ko">지점 운영 총괄 지휘 및 효율적인 프로세스 확립</li>
+              <li class="en hidden">Directed and controlled branch operations, establishing efficient processes.</li>
+              <li class="ko">운영 효율성 증대 및 팀 시간 관리 최적화를 위한 맞춤형 시스템 제안 및 성공적 도입</li>
+              <li class="en hidden">Proposed and successfully implemented a custom system to enhance operational
+                efficiency and optimize team time management.</li>
+              <li class="ko">문서 생성, 데이터 입력, 일반 관리 업무 등 핵심 행정 업무 총괄</li>
+              <li class="en hidden">Managed core administrative tasks including document creation, data entry, and
+                general administration.</li>
+            </ul>
+
+            <div class="content-tag ko mt-4"><i class="fas fa-trophy"></i>주요 성과</div>
+            <div class="content-tag en hidden mt-4"><i class="fas fa-trophy"></i>Key Achievements</div>
+            <ul class="list-disc mt-3 ml-5 space-y-1 text-sm md:text-base">
+              <li class="ko">프로세스 혁신 및 효율성 극대화를 통해 회사 수익 증대에 크게 기여</li>
+              <li class="en hidden">Significantly contributed to company profit generation through process innovation
+                and efficiency maximization.</li>
+              <li class="ko">3년 연속 "최우수 직원" 선정 (탁월한 리더십 및 성과 인정)</li>
+              <li class="en hidden">Awarded "Top Employee" for three consecutive years, recognizing exceptional
+                leadership and performance.</li>
+              <li class="ko">지점 운영 간소화 및 효율화를 통해 업무 생산성 향상 주도</li>
+              <li class="en hidden">Led improvements in work productivity by simplifying and streamlining branch
+                operations.</li>
+            </ul>
+            <p class="mt-3 text-sm font-medium ko">최종 연봉: ₩70,000,000</p>
+            <p class="mt-3 text-sm font-medium en hidden">Final Annual Salary: ₩70,000,000</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"><i class="fas fa-plane-departure"></i></div>
+          <div class="timeline-content">
+            <h3 class="ko">한국통합국제운송 주식회사</h3>
+            <h3 class="en hidden">Korea Integrated International Transportation Co., Ltd.</h3>
+            <p class="date-period ko">2011년 6월 - 2017년 2월 (5년 9개월)</p>
+            <p class="date-period en hidden">Jun 2011 - Feb 2017 (5 years 9 months)</p>
+            <p class="position-title ko">과장 / 팀원, 인천공항 지점</p>
+            <p class="position-title en hidden">Section Chief / Team Member, Incheon Airport Branch</p>
+
+            <div class="content-tag ko"><i class="fas fa-tasks"></i>주요 업무</div>
+            <div class="content-tag en hidden"><i class="fas fa-tasks"></i>Key Responsibilities</div>
+            <ul class="list-disc mt-3 ml-5 space-y-1 text-sm md:text-base">
+              <li class="ko">수출 사무실 운영 관리 및 항공 화물 수출 실무 총괄</li>
+              <li class="en hidden">Managed export office operations and handled practical aspects of airfreight
+                exports.</li>
+              <li class="ko">국제 무역, 수출입 관리, 포워딩, 항공 화물 거래 전반 감독</li>
+              <li class="en hidden">Oversaw international trade, export/import management, forwarding, and airfreight
+                trading.</li>
+              <li class="ko">항공사와의 긴밀한 협력 관계 구축 및 원활한 화물 처리 지원</li>
+              <li class="en hidden">Supported smooth cargo handling through close relationships with airlines.</li>
+            </ul>
+
+            <div class="content-tag ko mt-4"><i class="fas fa-award"></i>주요 성과</div>
+            <div class="content-tag en hidden mt-4"><i class="fas fa-award"></i>Key Achievements</div>
+            <ul class="list-disc mt-3 ml-5 space-y-1 text-sm md:text-base">
+              <li class="ko">고객 물류의 원활한 흐름 확보 기여로 "최우수 직원" 수상</li>
+              <li class="en hidden">Received "Top Employee" award for contributions to the smooth flow of client
+                logistics.</li>
+            </ul>
+            <p class="mt-3 text-sm font-medium ko">최종 연봉: ₩60,000,000</p>
+            <p class="mt-3 text-sm font-medium en hidden">Final Annual Salary: ₩60,000,000</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"><i class="fas fa-cogs"></i></div>
+          <div class="timeline-content">
+            <h3 class="ko">더케이테크 주식회사</h3>
+            <h3 class="en hidden">The K Tech Co., Ltd.</h3>
+            <p class="date-period ko">2010년 10월 - 2011년 5월 (8개월)</p>
+            <p class="date-period en hidden">Oct 2010 - May 2011 (8 months)</p>
+            <p class="position-title ko">대리 / 과장 팀원, 수입부</p>
+            <p class="position-title en hidden">Assistant Manager / Section Chief Team Member, Import Department</p>
+
+            <div class="content-tag ko"><i class="fas fa-tasks"></i>주요 업무</div>
+            <div class="content-tag en hidden"><i class="fas fa-tasks"></i>Key Responsibilities</div>
+            <ul class="list-disc mt-3 ml-5 space-y-1 text-sm md:text-base">
+              <li class="ko">대한항공 수입 화물 도착 전 세관 매니페스트 제출 업무 담당</li>
+              <li class="en hidden">Submitted manifests for Korean Air import cargo to customs prior to arrival.</li>
+              <li class="ko">수출입 운영 관리 지원</li>
+              <li class="en hidden">Managed export/import operations support.</li>
+            </ul>
+            <p class="mt-3 text-sm font-medium ko">최종 연봉: ₩35,000,000</p>
+            <p class="mt-3 text-sm font-medium en hidden">Final Annual Salary: ₩35,000,000</p>
+          </div>
+        </div>
+
+        <div class="timeline-item">
+          <div class="timeline-dot"><i class="fas fa-archive"></i></div>
+          <div class="timeline-content">
+            <h3 class="ko">한국항공물류서비스 주식회사</h3>
+            <h3 class="en hidden">Korea Aviation Logistics Services Co., Ltd.</h3>
+            <p class="date-period ko">2007년 6월 - 2010년 9월 (3년 4개월)</p>
+            <p class="date-period en hidden">Jun 2007 - Sep 2010 (3 years 4 months)</p>
+            <p class="position-title ko">직원, 수입부</p>
+            <p class="position-title en hidden">Staff Member, Import Department</p>
+
+            <div class="content-tag ko"><i class="fas fa-tasks"></i>주요 업무</div>
+            <div class="content-tag en hidden"><i class="fas fa-tasks"></i>Key Responsibilities</div>
+            <ul class="list-disc mt-3 ml-5 space-y-1 text-sm md:text-base">
+              <li class="ko">대한항공 수입 화물 도착 전 세관 매니페스트 제출</li>
+              <li class="en hidden">Submitted manifests for Korean Air import cargo to customs prior to arrival.</li>
+              <li class="ko">항공 화물 거래 운영 관리 지원</li>
+              <li class="en hidden">Managed airfreight trading operations support.</li>
+            </ul>
+            <p class="mt-3 text-sm font-medium ko">최종 연봉: ₩32,000,000</p>
+            <p class="mt-3 text-sm font-medium en hidden">Final Annual Salary: ₩32,000,000</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card p-6 sm:p-8 md:p-10 mb-12" id="education-section">
+      <h2 class="section-title ko">학력</h2>
+      <h2 class="section-title en hidden">Education</h2>
+      <div class="flex items-center">
+        <div class="text-3xl mr-6 text-primary-color dark:text-secondary-color"><i class="fas fa-graduation-cap"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-xl ko">원광대학교 (1996 - 2000)</h3>
+          <h3 class="font-bold text-xl en hidden">Wonkwang University (1996 - 2000)</h3>
+          <p class="text-gray-600 dark:text-gray-400 ko">전공: 미술 (중퇴)</p>
+          <p class="text-gray-600 dark:text-gray-400 en hidden">Major: Fine Arts (Incomplete)</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="glass-card p-6 sm:p-8 md:p-10 mb-12" id="certifications-section">
+      <h2 class="section-title ko">자격증</h2>
+      <h2 class="section-title en hidden">Certifications</h2>
+      <div>
+        <div class="flex items-center ">
+          <div class="text-3xl mr-6 text-primary-color dark:text-secondary-color"><i class="fas fa-certificate"></i>
+          </div>
+          <div>
+            <h3 class="font-semibold text-lg ko">지게차 운전 기능사</h3>
+            <h3 class="font-semibold text-lg en hidden">Certified Forklift Operator</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 ko">한국산업인력공단</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 en hidden">HRD Korea</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="text-center text-gray-500 dark:text-gray-400 text-sm py-8 fade-in-section">
+      <p>© 2024 Jinseong Kim. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <script>
+    const langToggleBtn = document.getElementById('lang-toggle');
+    const koElements = document.querySelectorAll('.ko');
+    const enElements = document.querySelectorAll('.en');
+    langToggleBtn.addEventListener('click', () => {
+      koElements.forEach(el => el.classList.toggle('hidden'));
+      enElements.forEach(el => el.classList.toggle('hidden'));
+    });
+
+    const modeToggleBtn = document.getElementById('mode-toggle');
+    const body = document.body;
+    const moonIcon = modeToggleBtn.querySelector('.fa-moon');
+    const sunIcon = modeToggleBtn.querySelector('.fa-sun');
+
+    const currentTheme = localStorage.getItem('theme');
+    if (currentTheme === 'dark' || (!currentTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      body.classList.add('dark');
+      body.classList.remove('light');
+      if (moonIcon) moonIcon.classList.add('hidden');
+      if (sunIcon) sunIcon.classList.remove('hidden');
+    } else {
+      body.classList.add('light');
+      body.classList.remove('dark');
+      if (moonIcon) moonIcon.classList.remove('hidden');
+      if (sunIcon) sunIcon.classList.add('hidden');
+    }
+
+    modeToggleBtn.addEventListener('click', () => {
+      body.classList.toggle('dark');
+      body.classList.toggle('light');
+      if (moonIcon) moonIcon.classList.toggle('hidden');
+      if (sunIcon) sunIcon.classList.toggle('hidden');
+
+      if (body.classList.contains('dark')) {
+        localStorage.setItem('theme', 'dark');
+      } else {
+        localStorage.setItem('theme', 'light');
+      }
+    });
+
+    const animatedEls = document.querySelectorAll('.fade-in-section, .glass-card');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    animatedEls.forEach(el => observer.observe(el));
+
+    const skillBars = document.querySelectorAll('.skill-progress');
+    const skillObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.width = entry.target.dataset.width || entry.target.style.width;
+          skillObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    skillBars.forEach(bar => {
+      bar.dataset.width = bar.style.width;
+      bar.style.width = '0%';
+      skillObserver.observe(bar);
+    });
+
+  </script>
+</body>
+
+</html>
