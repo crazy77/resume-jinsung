@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>매트릭스 레인</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    body {
+      background-color: #000;
+    }
+
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      font-smooth: never;
+      -webkit-font-smoothing: none;
+      font-weight: 900;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="matrix"></canvas>
+
+  <script>
+    // 캔버스 설정
+    const canvas = document.getElementById('matrix');
+    const ctx = canvas.getContext('2d');
+
+    // 전체 화면 설정
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // 화면 크기 변경 시 캔버스 크기 조정
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      initializeMatrix();
+    });
+
+    // 일본어, 한자, 특수문자와 숫자를 포함한 문자 집합 - 영화와 더 비슷하게
+    const chars = 'ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍ日山出中人年大十二本中長時行見円前後午前名白天森林水火右左休体学校村町花草竹系青語数字文学入外出国大小高明親年手足田力自一三五七九０１２３４５６７８９ABCDEFGHIJKLMNOPQRSTUVWXYZ:・."=*+-<>';
+
+    // 매트릭스 드롭 객체 배열
+    let drops = [];
+
+    // 정적 상태로 전환될 열의 비율 (시간이 지남에 따라 증가)
+    let staticProbability = 0;
+
+    // 배경 이미지를 위한 오프스크린 캔버스 (성능 최적화)
+    const bgCanvas = document.createElement('canvas');
+    const bgCtx = bgCanvas.getContext('2d');
+
+    // 수직선 효과 (GIF 분석: 배경에 세로줄 효과가 있음)
+    const verticalLinesCanvas = document.createElement('canvas');
+    const verticalLinesCtx = verticalLinesCanvas.getContext('2d');
+
+    // 노이즈 효과 캔버스
+    const noiseCanvas = document.createElement('canvas');
+    const noiseCtx = noiseCanvas.getContext('2d');
+
+    // 배경 그라데이션 효과
+    function createGradientBackground() {
+      const gradient = bgCtx.createRadialGradient(
+        bgCanvas.width / 2, bgCanvas.height / 2, 0,
+        bgCanvas.width / 2, bgCanvas.height / 2, bgCanvas.width / 1.5
+      );
+      gradient.addColorStop(0, 'rgba(0, 20, 8, 0.04)');
+      gradient.addColorStop(1, 'rgba(0, 8, 2, 0.005)');
+      return gradient;
+    }
+
+    // 수직선 효과 생성
+    function createVerticalLines() {
+      verticalLinesCanvas.width = canvas.width;
+      verticalLinesCanvas.height = canvas.height;
+      verticalLinesCtx.clearRect(0, 0, verticalLinesCanvas.width, verticalLinesCanvas.height);
+
+      const fontSize = 26;
+      const lineSpacing = fontSize * 0.65;
+
+      verticalLinesCtx.strokeStyle = 'rgba(0, 40, 10, 0.03)';
+      verticalLinesCtx.lineWidth = 0.5;
+
+      for (let x = 0; x < canvas.width; x += lineSpacing) {
+        verticalLinesCtx.beginPath();
+        verticalLinesCtx.moveTo(x, 0);
+        verticalLinesCtx.lineTo(x, canvas.height);
+        verticalLinesCtx.stroke();
+      }
+    }
+
+    // 노이즈 효과 생성 (GIF 분석: 픽셀화된 노이즈가 있음)
+    function createNoise() {
+      noiseCanvas.width = canvas.width;
+      noiseCanvas.height = canvas.height;
+      noiseCtx.clearRect(0, 0, noiseCanvas.width, noiseCanvas.height);
+
+      const imgData = noiseCtx.createImageData(noiseCanvas.width, noiseCanvas.height);
+      const data = imgData.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        if (Math.random() < 0.01) { // 1% 확률로 노이즈 픽셀
+          const value = Math.random() * 50;
+          data[i] = value;     // R
+          data[i + 1] = value * 3; // G
+          data[i + 2] = value;   // B
+          data[i + 3] = 30;      // A
+        } else {
+          data[i + 3] = 0; // 나머지 픽셀은 투명
+        }
+      }
+
+      noiseCtx.putImageData(imgData, 0, 0);
+    }
+
+    // 매트릭스 초기화 함수
+    function initializeMatrix() {
+      const fontSize = 14;
+      const columnSpacing = fontSize * 0.65;
+      const columns = Math.floor(canvas.width / columnSpacing);
+
+      // 배경 캔버스 설정
+      bgCanvas.width = canvas.width;
+      bgCanvas.height = canvas.height;
+
+      // 어두운 초록색 배경 그라데이션 적용
+      bgCtx.fillStyle = '#000300';
+      bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+      // 그라데이션 적용
+      bgCtx.fillStyle = createGradientBackground();
+      bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+      // 수직선 효과 생성
+      createVerticalLines();
+
+      // 노이즈 효과 생성
+      createNoise();
+
+      drops = [];
+
+      // 새 GIF 분석: 처음에는 모든 열이 움직이는 상태로 시작
+      for (let i = 0; i < columns; i++) {
+        // 깊이감을 위한 Z 위치
+        const zPos = Math.random();
+        const brightnessBase = 0.6 + (zPos * 0.4);
+        const speedFactor = 0.7 - (zPos * 0.4);
+
+        // 시작 지점 다양화 (새 GIF 분석: 처음부터 화면에 분포된 상태)
+        const startY = Math.random() < 0.3 ?
+          Math.floor(Math.random() * (canvas.height / fontSize * 0.8)) : // 30%는 화면 내 시작
+          Math.floor(Math.random() * -50) - 10; // 70%는 화면 위에서 시작
+
+        drops[i] = {
+          x: i * columnSpacing,
+          y: startY,
+          speed: (Math.random() * 0.1 + 0.15) * speedFactor, // 새 GIF 분석: 더 느린 속도
+          state: 'moving', // 모든 열이 처음에는 움직임 상태로 시작
+          stateCounter: 0,
+          stateTime: Math.floor(Math.random() * 300) + 200,
+          chars: [],
+          brightness: brightnessBase,
+          length: Math.floor(Math.random() * 15) + (zPos < 0.4 ? 25 : 15), // 더 다양한 길이
+          blurAmount: Math.floor(zPos * 3),
+          changeRate: 0.001,
+          staticPosition: 0, // 정적 위치는 나중에 결정
+          isFixed: false, // 초기에는 모두 고정되지 않음
+          zPosition: zPos,
+          stopProbability: 0.0001 + (Math.random() * 0.0005), // 개별 멈춤 확률 (열마다 다름)
+          colorVariation: Math.random() * 0.2, // 색상 변동 (새 GIF 분석: 더 다양한 색상)
+          lastChangeTime: 0, // 마지막 문자 변경 시간
+          creationTime: Date.now() // 생성 시간 기록
+        };
+
+        // 초기 문자 생성
+        for (let j = 0; j < drops[i].length; j++) {
+          drops[i].chars.push(chars[Math.floor(Math.random() * chars.length)]);
+        }
+      }
+
+      // 정적 확률 초기화
+      staticProbability = 0;
+    }
+
+    // 타임스탬프 관리
+    let lastFrameTime = 0;
+
+    // 매트릭스 드롭 그리기
+    function drawMatrix(timestamp) {
+      // 프레임 간 시간 계산 (애니메이션 일관성 유지)
+      const deltaTime = timestamp - lastFrameTime;
+      lastFrameTime = timestamp;
+
+      // 시간에 따른 정적 확률 증가 (3초 후부터 점차 정적 확률 증가)
+      if (timestamp > 3000 && staticProbability < 0.005) {
+        staticProbability += 0.0001; // 더 빠르게 정적 확률 증가
+      }
+
+      // 반투명 검은색으로 이전 프레임 흐리게 표시 (꼬리 효과)
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 노이즈 효과 적용 (새 GIF 분석: 은은한 노이즈)
+      if (Math.random() > 0.7) { // 30% 확률로 노이즈 갱신
+        createNoise();
+      }
+      ctx.globalAlpha = 0.04;
+      ctx.drawImage(noiseCanvas, 0, 0);
+      ctx.globalAlpha = 1.0;
+
+      // 가끔 배경에 연한 그라데이션 효과 적용
+      if (Math.random() > 0.997) {
+        ctx.globalAlpha = 0.008;
+        ctx.drawImage(bgCanvas, 0, 0);
+        ctx.globalAlpha = 1.0;
+      }
+
+      // 수직선 효과 적용
+      ctx.globalAlpha = 0.3;
+      ctx.drawImage(verticalLinesCanvas, 0, 0);
+      ctx.globalAlpha = 1.0;
+
+      const fontSize = 14;
+
+      // 드롭 정렬 (깊이감을 위해 가까운 것부터 그림)
+      const sortedDrops = [...drops].sort((a, b) => b.zPosition - a.zPosition);
+
+      // 각 열 처리
+      for (const drop of sortedDrops) {
+        // 생성 후 일정 시간이 지난 후에만 상태 변경 확률 적용 (2초 이상)
+        const dropAge = timestamp - drop.creationTime;
+        const canChangeState = dropAge > 2000;
+
+        // 상태에 따른 동작
+        switch (drop.state) {
+          case 'moving':
+            // 움직이는 열 그리기
+            drawColumn(drop, fontSize);
+            // 위치 업데이트
+            drop.y += drop.speed * (deltaTime / 16.67); // fps 보정
+
+            // 상태 변경 확률 (새 GIF 분석: 시간이 지남에 따라 더 많은 열이 정지)
+            if (canChangeState && Math.random() < drop.stopProbability + staticProbability) {
+              drop.state = 'static';
+              drop.staticPosition = drop.y;
+              // 약 10%의 열은 정지 후 고정됨
+              drop.isFixed = Math.random() < 0.1;
+            }
+
+            // 아주 낮은 확률로 깜빡임
+            if (Math.random() > 0.999) {
+              drop.state = 'blinking';
+              drop.stateCounter = 0;
+              drop.stateTime = Math.floor(Math.random() * 8) + 3;
+            }
+            break;
+
+          case 'static':
+            // 정적인 열 그리기
+            drawColumn(drop, fontSize);
+
+            // 가끔 깜빡이는 효과
+            if (Math.random() > 0.9995) {
+              drop.state = 'blinking';
+              drop.stateCounter = 0;
+              drop.stateTime = Math.floor(Math.random() * 8) + 3;
+            }
+
+            // 고정 열이 아닌 경우에만 매우 낮은 확률로 다시 움직임으로 변경
+            if (!drop.isFixed && Math.random() > 0.992) {
+              drop.state = 'moving';
+            }
+            break;
+
+          case 'blinking':
+            // 깜빡임 효과 (새 GIF 분석: 더 빠른 깜빡임)
+            if (Math.round(drop.stateCounter) % 2 === 0) {
+              drawColumn(drop, fontSize);
+            }
+
+            // 깜빡임 이후 원래 상태로 복귀
+            drop.stateCounter += deltaTime / 50; // 시간 기반 카운터 증가
+            if (drop.stateCounter >= drop.stateTime) {
+              // 원래 상태로 복귀
+              drop.state = drop.isFixed ? 'static' : 'moving';
+              drop.stateCounter = 0;
+            }
+            break;
+        }
+
+        // 문자 변경 (새 GIF 분석: 더 자연스러운 변경 패턴)
+        if (timestamp - drop.lastChangeTime > 500 && Math.random() > 0.916) {
+          // 무작위 위치의 문자 한 개만 변경
+          const randomCharIndex = Math.floor(Math.random() * drop.chars.length);
+          drop.chars[randomCharIndex] = chars[Math.floor(Math.random() * chars.length)];
+          drop.lastChangeTime = timestamp;
+        }
+
+        // 화면 밖으로 나가면 초기화
+        if (drop.y * fontSize > canvas.height + drop.length * fontSize) {
+          resetDrop(drop);
+        }
+      }
+
+      // 다음 프레임 요청
+      requestAnimationFrame(drawMatrix);
+    }
+
+    // 열 그리기 함수
+    function drawColumn(drop, fontSize) {
+      const y = Math.floor(drop.y) * fontSize;
+
+      // 블러 효과 설정
+      ctx.shadowBlur = drop.blurAmount;
+      ctx.shadowColor = `rgba(0, ${Math.floor(250 * drop.brightness)}, 80, 0.5)`;
+
+      // 첫 글자는 흰색/옅은 파란색으로 밝게 표시 (새 GIF 분석: 더 다양한 색상)
+      if (drop.y > 0 && drop.state !== 'fading') {
+        const redVal = 120 * drop.brightness * (1 - drop.colorVariation);
+        const greenVal = 255;
+        const blueVal = (180 + (drop.colorVariation * 75)) * drop.brightness;
+
+        ctx.fillStyle = `rgba(${redVal}, ${greenVal}, ${blueVal}, 0.95)`;
+        ctx.font = `bold ${fontSize}px monospace`;
+
+        // 첫 글자 광채 효과
+        ctx.shadowBlur = 5 + Math.floor(Math.random() * 3);
+        ctx.shadowColor = 'rgba(140, 255, 170, 0.9)';
+        ctx.fillText(drop.chars[0], drop.x, y);
+      }
+
+      // 후속 글자들 그리기
+      for (let j = 1; j < drop.chars.length; j++) {
+        if (drop.y - j > 0) {
+          // 밝기 계산 (위에서 아래로 갈수록 어두워짐)
+          const opacity = (1 - j / drop.chars.length) * 0.95 * drop.brightness;
+
+          // 색상 조정 (새 GIF 분석: 더 다양한 색상 포함)
+          const greenVal = Math.floor(220 * drop.brightness - j * 1.2);
+          const redVal = Math.floor((5 + (drop.colorVariation * 10)) * opacity * drop.brightness);
+          const blueVal = Math.floor((35 + (drop.colorVariation * 15)) * opacity * drop.brightness);
+
+          ctx.fillStyle = `rgba(${redVal}, ${greenVal}, ${blueVal}, ${opacity})`;
+          ctx.font = `${fontSize}px monospace`;
+
+          // 무작위로 일부 문자는 더 밝게 처리
+          if (Math.random() > 0.9995) {
+            ctx.fillStyle = `rgba(${redVal + 20}, ${greenVal + 35}, ${blueVal + 10}, ${opacity + 0.1})`;
+            ctx.shadowBlur = 2;
+          } else {
+            ctx.shadowBlur = drop.blurAmount;
+          }
+
+          // 실제 글자 그리기
+          ctx.fillText(drop.chars[j], drop.x, (drop.y - j) * fontSize);
+        }
+      }
+    }
+
+    // 드롭 초기화 함수
+    function resetDrop(drop) {
+      // 화면 위에서 시작 (새 GIF 분석: 더 다양한 시작점)
+      drop.y = Math.floor(Math.random() * -50) - 10;
+      drop.creationTime = Date.now(); // 생성 시간 재설정
+
+      // 무조건 움직이는 상태로 시작 (새 GIF 분석: 모든 열이 처음에는 움직임)
+      drop.state = 'moving';
+      drop.isFixed = false;
+
+      // 다양한 속도 (새 GIF 분석: 더 일정한 속도)
+      const speedFactor = 0.7 - (drop.zPosition * 0.4);
+      drop.speed = (Math.random() * 0.1 + 0.15) * speedFactor;
+
+      drop.stateCounter = 0;
+      drop.stateTime = Math.floor(Math.random() * 200) + 100;
+
+      // 길이 설정 (새 GIF 분석: 더 다양한 길이)
+      drop.length = Math.floor(Math.random() * 15) + (drop.zPosition < 0.4 ? 25 : 15);
+
+      // 새로운 문자 세트 생성
+      drop.chars = [];
+      for (let j = 0; j < drop.length; j++) {
+        drop.chars.push(chars[Math.floor(Math.random() * chars.length)]);
+      }
+
+      // 멈춤 확률 재설정 (열마다 다름)
+      drop.stopProbability = 0.002 + (Math.random() * 0.003);
+
+      // 색상 변동 (새 GIF 분석: 더 다양한 색상)
+      drop.colorVariation = Math.random() * 0.2;
+    }
+
+    // 초기화 및 애니메이션 시작
+    initializeMatrix();
+    requestAnimationFrame(drawMatrix);
+  </script>
+</body>
+
+</html>
